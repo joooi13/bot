@@ -28,9 +28,14 @@ function doPost(e) {
   } else if(userMessage == '一覧') {
     //シートの一覧を取得する
     var lastRow = sh.getLastRow();
-    var wordList = sh.getRange(1,1,lastRow,2).getValues();
-    sendMessage(json, '一覧です');
-    sendMessage(json, wordList);
+    var result = '登録したもの一覧です\n';
+
+    for (let i = 1; i <= lastRow; i++){
+      var wordList  = sh.getRange(i,1).getValue();
+      result += '\n' + wordList;
+    }
+    sendMessage(json, result);
+
   } else {
     sh.appendRow([userMessage]);
     sendMessage(json, '登録できました！');
