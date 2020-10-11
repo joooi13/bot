@@ -23,8 +23,30 @@ function doPost(e) {
   } else if(userMessage == '削除') {
     //シートの最終行を取得する
     var lastRow = sh.getLastRow();
+
+    var result = '削除する商品の番号を入力してね\n';
+    for (let i = 1; i <= lastRow; i++){
+      var wordList  = sh.getRange(i,1).getValue();
+      result += '\n' + i + '：' + wordList;
+    }
+    sendMessage(json, result);
+  } else if(!isNaN(userMessage)) {
+    //削除する商品を取得
+    var deleteWord  = sh.getRange(userMessage,1).getValue();
+
+    if (deleteWord) {
+      //選ばれた行の商品を削除
+      sh.deleteRow(userMessage);
+      sendMessage(json, '「' + deleteWord + '」を削除したよ');
+    } else {
+      sendMessage(json, '削除するものがないよ');
+    }
+
+  } else if(userMessage == '全削除') {
+    //シートの最終行を取得し、全行削除
+    var lastRow = sh.getLastRow();
     sh.deleteRows(1,lastRow);
-    sendMessage(json, 'リストを削除したよ');
+    sendMessage(json, 'リストを全削除したよ');
   } else if(userMessage == '一覧') {
     //シートの一覧を取得する
     var lastRow = sh.getLastRow();
@@ -42,7 +64,6 @@ function doPost(e) {
       result += '\n' + wordList;
     }
     sendMessage(json, result);
-
   } else {
     sh.appendRow([userMessage]);
     pushMessage(json, userMessage);
