@@ -24,12 +24,19 @@ function doPost(e) {
     //シートの最終行を取得する
     var lastRow = sh.getLastRow();
     sh.deleteRows(1,lastRow);
-    sendMessage(json, 'リストを削除しました！');
+    sendMessage(json, 'リストを削除したよ');
   } else if(userMessage == '一覧') {
     //シートの一覧を取得する
     var lastRow = sh.getLastRow();
-    var result = '登録したもの一覧です\n';
 
+    //1件も登録がない場合
+    if (lastRow === 0) {
+      sendMessage(json, 'ない');
+      return;
+    }
+
+    //1件でもある場合
+    var result = 'お買い物リスト一覧\n';
     for (let i = 1; i <= lastRow; i++){
       var wordList  = sh.getRange(i,1).getValue();
       result += '\n' + wordList;
@@ -38,7 +45,7 @@ function doPost(e) {
 
   } else {
     sh.appendRow([userMessage]);
-    sendMessage(json, '登録できました！');
+    pushMessage(json, userMessage);
   }
 
 }
@@ -68,4 +75,29 @@ function sendMessage(json,msg) {
   });
 
   return ContentService.createTextOutput(JSON.stringify({'content': 'post ok'})).setMimeType(ContentService.MimeType.JSON);
+}
+
+//push通知する
+function pushMessage(json,msg) {
+
+  var replyToken = json.events[0].replyToken;
+  var push_url = 'https://api.line.me/v2/bot/message/broadcast';
+
+  UrlFetchApp.fetch(push_url, {
+    'headers': {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer ' + ACCESS_TOKEN,
+    },
+    'method': 'post',
+    'payload': JSON.stringify({
+      'replyToken': replyToken,
+      'messages':[
+        {
+          'type':'text',
+          'text':'「' + msg + '」の登録があったよ'
+        },
+      ]
+    }),
+  });
+
 }
