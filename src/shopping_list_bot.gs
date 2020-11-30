@@ -24,23 +24,48 @@ function doPost(e) {
     //シートの最終行を取得する
     var lastRow = sh.getLastRow();
 
-    var result = '削除する商品の番号を入力してね\n';
+    var result = '削除する商品の番号を入力してね\n カンマ区切りにしてね';
     for (let i = 1; i <= lastRow; i++){
       var wordList  = sh.getRange(i,1).getValue();
       result += '\n' + i + '：' + wordList;
     }
     sendMessage(json, result);
-  } else if(!isNaN(userMessage)) {
-    //削除する商品を取得
-    var deleteWord  = sh.getRange(userMessage,1).getValue();
+  } else if(!isNaN(userMessage) || userMessage.match(/,/)) {
 
-    if (deleteWord) {
-      //選ばれた行の商品を削除
-      sh.deleteRow(userMessage);
-      sendMessage(json, '「' + deleteWord + '」を削除したよ');
-    } else {
-      sendMessage(json, '削除するものがないよ');
+    var userMessages = userMessage.split(",");
+    var deleteList;
+
+    for (var i = userMessages.length - 1; i >= 0 ; i--){
+
+      //削除する商品を取得
+      var deleteWord  = sh.getRange(userMessages[i],1).getValue();
+
+      if (deleteWord) {
+        //選ばれた行の商品を削除
+        sh.deleteRow(userMessages[i]);
+        deleteList += deleteWord +'\n';
+      } else {
+        sendMessage(json, '削除するものがないよ');
+      }
     }
+
+    //シートの一覧を取得する
+    var lastRow = sh.getLastRow();
+    var result = '残りは';
+
+    //1件も登録がない場合
+    if (lastRow === 0) {
+      sendMessage(json, '選択された商品を削除したよ \n登録されているものはもうないよ');
+      return;
+    }
+
+    //1件でもある場合
+    for (let j = 1; j <= lastRow; j++){
+      var wordList  = sh.getRange(j,1).getValue();
+      result += '\n' + wordList;
+    }
+
+    sendMessage(json, '選択された商品を削除したよ\n' + '\n' + result + '\nだよ');
 
   } else if(userMessage == '全削除') {
     //シートの最終行を取得し、全行削除
