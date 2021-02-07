@@ -24,7 +24,7 @@ function doPost(e) {
     //シートの最終行を取得する
     var lastRow = sh.getLastRow();
 
-    var result = '削除する商品の番号を入力してね\n カンマ区切りにしてね';
+    var result = '削除する商品の番号を入力してね\nカンマ区切りにするか、ハイフンで範囲を指定してね\n';
     for (let i = 1; i <= lastRow; i++){
       var wordList  = sh.getRange(i,1).getValue();
       result += '\n' + i + '：' + wordList;
@@ -33,7 +33,6 @@ function doPost(e) {
   } else if(!isNaN(userMessage) || userMessage.match(/,/)) {
 
     var userMessages = userMessage.split(",");
-    var deleteList;
 
     for (var i = userMessages.length - 1; i >= 0 ; i--){
 
@@ -43,29 +42,34 @@ function doPost(e) {
       if (deleteWord) {
         //選ばれた行の商品を削除
         sh.deleteRow(userMessages[i]);
-        deleteList += deleteWord +'\n';
       } else {
         sendMessage(json, '削除するものがないよ');
       }
     }
 
-    //シートの一覧を取得する
-    var lastRow = sh.getLastRow();
-    var result = '残りは';
+    afterDelete(sh,json);
 
-    //1件も登録がない場合
-    if (lastRow === 0) {
-      sendMessage(json, '選択された商品を削除したよ \n登録されているものはもうないよ');
-      return;
+  } else if(!isNaN(userMessage) || userMessage.match(/-/)) {
+
+    var userMessages = userMessage.split("-");
+
+    var deleteFirstNum = userMessages[0];
+    var deleteLastNum = userMessages[1];
+
+    for (var i = deleteLastNum; i >= deleteFirstNum; i--){
+
+      //削除する商品を取得
+      var deleteWord  = sh.getRange(i,1).getValue();
+
+      if (deleteWord) {
+        //選ばれた行の商品を削除
+        sh.deleteRow(i);
+      } else {
+        sendMessage(json, '削除するものがないよ');
+      }
     }
 
-    //1件でもある場合
-    for (let j = 1; j <= lastRow; j++){
-      var wordList  = sh.getRange(j,1).getValue();
-      result += '\n' + wordList;
-    }
-
-    sendMessage(json, '選択された商品を削除したよ\n' + '\n' + result + '\nだよ');
+    afterDelete(sh,json);
 
   } else if(userMessage == '全削除') {
     //シートの最終行を取得し、全行削除
@@ -96,6 +100,26 @@ function doPost(e) {
 
 }
 
+//削除後の処理
+function afterDelete(sh,json){
+    //シートの一覧を取得する
+    var lastRow = sh.getLastRow();
+    var result = '残りは';
+
+    //1件も登録がない場合
+    if (lastRow === 0) {
+      sendMessage(json, '選択された商品を削除したよ \n登録されているものはもうないよ');
+      return;
+    }
+
+    //1件でもある場合
+    for (let j = 1; j <= lastRow; j++){
+      var wordList  = sh.getRange(j,1).getValue();
+      result += '\n' + wordList;
+    }
+
+    sendMessage(json, '選択された商品を削除したよ\n' + '\n' + result + '\nだよ');
+}
 
 //replyする
 function sendMessage(json,msg) {
