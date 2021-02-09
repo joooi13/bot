@@ -95,7 +95,7 @@ function doPost(e) {
     sendMessage(json, result);
   } else {
     sh.appendRow([userMessage]);
-    pushMessage(json, userMessage);
+    pushMessage(userMessage);
   }
 
 }
@@ -148,9 +148,8 @@ function sendMessage(json,msg) {
 }
 
 //push通知する
-function pushMessage(json,msg) {
+function pushMessage(msg) {
 
-  var replyToken = json.events[0].replyToken;
   var push_url = 'https://api.line.me/v2/bot/message/broadcast';
 
   UrlFetchApp.fetch(push_url, {
@@ -160,11 +159,33 @@ function pushMessage(json,msg) {
     },
     'method': 'post',
     'payload': JSON.stringify({
-      'replyToken': replyToken,
       'messages':[
         {
           'type':'text',
           'text':'「' + msg + '」の登録があったよ'
+        },
+      ]
+    }),
+  });
+
+}
+
+//8のつく日お知らせ
+function pushEightDay() {
+
+  var push_url = 'https://api.line.me/v2/bot/message/broadcast';
+
+  UrlFetchApp.fetch(push_url, {
+    'headers': {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer ' + ACCESS_TOKEN,
+    },
+    'method': 'post',
+    'payload': JSON.stringify({
+      'messages':[
+        {
+          'type':'text',
+          'text':'明日は８のつく日！'
         },
       ]
     }),
