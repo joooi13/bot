@@ -53,8 +53,8 @@ function doPost(e) {
 
     var userMessages = userMessage.split("-");
 
-    var deleteFirstNum = userMessages[0];
-    var deleteLastNum = userMessages[1];
+    var deleteFirstNum = Number(userMessages[0]);
+    var deleteLastNum = Number(userMessages[1]);
 
     for (var i = deleteLastNum; i >= deleteFirstNum; i--){
 
