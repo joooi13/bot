@@ -170,8 +170,8 @@ function pushMessage(msg) {
 
 }
 
-//8のつく日お知らせ
-function pushEightDay() {
+//明日は8のつく日
+function pushEightDayTomorrow() {
 
   var push_url = 'https://api.line.me/v2/bot/message/broadcast';
 
@@ -186,6 +186,29 @@ function pushEightDay() {
         {
           'type':'text',
           'text':'明日は８のつく日！'
+        },
+      ]
+    }),
+  });
+
+}
+
+//今日は8のつく日
+function pushEightDay() {
+
+  var push_url = 'https://api.line.me/v2/bot/message/broadcast';
+
+  UrlFetchApp.fetch(push_url, {
+    'headers': {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer ' + ACCESS_TOKEN,
+    },
+    'method': 'post',
+    'payload': JSON.stringify({
+      'messages':[
+        {
+          'type':'text',
+          'text':'今日は８のつく日！ハッピーデー！'
         },
       ]
     }),
